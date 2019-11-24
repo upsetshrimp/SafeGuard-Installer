@@ -71,8 +71,8 @@ if [ "$EUID" -ne 0 ]; then
 fi
 if [[ -f "/home/user/docker-compose/1.20.0/docker-compose.yml" ]]; then
 		SecondIteration
-	else
-		echo "App not installed, please Install it and try again"
-		echo "Exiting..."
-		exit 1;
-	fi
+else
+	echo "App not installed, please Install it and try again"
+	echo "Exiting..."
+	exit 1;
+fi
