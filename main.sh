@@ -1,5 +1,6 @@
 
 #! /bin/bash
+# s6NXKghuKb
 firstIteration() {
 if [[ -d "/home/user/" ]]; then
 	cd /home/user/Downloads
