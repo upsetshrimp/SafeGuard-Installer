@@ -1,4 +1,3 @@
-
 #! /bin/bash
 # s6NXKghuKb
 firstIteration() {
@@ -11,6 +10,7 @@ fi
 local token="$1"
 local printCyan=$'\e[1;36m'
 local printWhite=$'\e[0m'
+local repoPath=/home/user/Downloads/SafeGuard-Installer/
 echo "Token is:"
 echo -e "${printCyan}${token}${printWhite}"
 if [[ -z ${token} ]]; then 
@@ -19,6 +19,7 @@ if [[ -z ${token} ]]; then
     echo "Exiting..."
     exit 1; 
 fi
+#dependencies and resources
 dpkg -a --configure
 wget https://download.teamviewer.com/download/linux/teamviewer_amd64.deb
 wget https://github.com/ANVSupport/SafeGuard-Installer/releases/download/Appimage/FaceSearch-1.20.0-linux-x86_64.AppImage
@@ -26,8 +27,12 @@ mv FaceSearch-1.20.0-linux-x86_64.AppImage /home/user/Desktop/SafeGuard.AppImage
 chmod +x /home/user/Desktop/SafeGuard.AppImage && chown /home/user/Desktop/SafeGuard.AppImage
 apt install vlc curl vim htop net-tools git expect -y -qq > /dev/null && successfulPrint "Utilities"
 git clone https://github.com/ANVSupport/SafeGuard-Installer > /dev/null && successfulPrint "Repo Cloned"
+chmod +x ${repoPath}*
 apt install ./team* -y -qq > /dev/null && successfulPrint "TeamViewer"
 mv ./SafeGuard-Installer/SafeGuard-Assets/secondIteration.sh /opt/secondIteration.sh
+
+# Call storage mounting script
+bash ${repoPath}/SafeGuard-Assets/mount.sh && successfulPrint "Storage Mount" || failedPrint "Storage Mount"
 
 ##moxa set up
 moxadir=/home/user/moxa-config/
