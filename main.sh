@@ -57,7 +57,7 @@ echo "1" > /opt/sg.f ##flag if the script has been run
 
 ##make script auto run after login
 tee -a /home/user/.profile <<'EOF' && successfulPrint "Startup added"
-gnome-terminal -- sh -c '/home/user/Downloads/SafeGuard-Installer/SafeGuard-Assets/LaunchAsRoot.sh'
+gnome-terminal -- sh -c '/home/user/Downloads/SafeGuard-Installer/SafeGuard-Assets/launchAsRoot.sh'
 EOF
 }
 clean(){
