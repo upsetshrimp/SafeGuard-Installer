@@ -20,20 +20,19 @@ if [[ -z ${token} ]]; then
 fi
 dpkg -a --configure
 wget https://download.teamviewer.com/download/linux/teamviewer_amd64.deb
-wget https://github.com/scriptsandsuch/compose-oneliner/releases/download/SG/FaceSearch-1.20.0-linux-x86_64.AppImage
+wget https://github.com/ANVSupport/SafeGuard-Installer/releases/download/Appimage/FaceSearch-1.20.0-linux-x86_64.AppImage
 mv FaceSearch-1.20.0-linux-x86_64.AppImage /home/user/Desktop/SafeGuard.AppImage
 chmod +x /home/user/Desktop/SafeGuard.AppImage && chown /home/user/Desktop/SafeGuard.AppImage
 apt install vlc curl vim htop net-tools git expect -y -qq > /dev/null && successfulPrint "Utilities"
-git clone https://github.com/scriptsandsuch/compose-oneliner > /dev/null && successfulPrint "Repo Cloned"
+git clone https://github.com/ANVSupport/SafeGuard-Installer > /dev/null && successfulPrint "Repo Cloned"
 apt install ./team* -y -qq > /dev/null && successfulPrint "TeamViewer"
-mv ./compose-oneliner/SafeGuard/secondIteration.sh /opt/secondIteration.sh
-mv ./compose-oneliner/SafeGuard/LaunchAsRoot.sh /
+mv ./SafeGuard-Installer/SafeGuard-Assets/secondIteration.sh /opt/secondIteration.sh
 
 ##moxa set up
 moxadir=/home/user/moxa-config/
 mkdir ${moxadir}
-mv /home/user/Downloads/compose-oneliner/SafeGuard/moxa_e1214.sh ${moxadir}
-mv /home/user/Downloads/compose-oneliner/SafeGuard/cameraList.json ${moxadir} && successfulPrint "Moxa setup" || failedPrint "Moxa setup"
+mv /home/user/Downloads/SafeGuard-Installer/SafeGuard-Assets/moxa_e1214.sh ${moxadir}
+mv /home/user/Downloads/SafeGuard-Installer/SafeGuard-Assets/cameraList.json ${moxadir} && successfulPrint "Moxa setup" || failedPrint "Moxa setup"
 chmod +x ${moxadir}* && chown user ${moxadir}*
 
 cat << "EOF"
@@ -46,13 +45,13 @@ cat << "EOF"
                                                 __/ |                                                                       
                                                |___/                                                                        
 EOF
-wget -qO- https://raw.githubusercontent.com/scriptsandsuch/compose-oneliner/development/compose-oneliner.sh | bash -s -- -b 1.20.0 -k ${token}
+bash -s /home/user/Downloads/SafeGuard-Installer/compose-oneliner/compose-oneliner.sh -b 1.20.0 -k ${token}
 ln -s /home/user/docker-compose/1.20.0/docker-compose-local-gpu.yml /home/user/docker-compose/1.20.0/docker-compose.yml && successfulPrint "Create Symbolic Link" || failedPrint "Create Symbolic Link"
 echo "1" > /opt/sg.f ##flag if the script has been run 
 
 ##make script auto run after login
 tee -a /home/user/.profile <<'EOF' && successfulPrint "Startup added"
-gnome-terminal -- sh -c '/opt/LaunchAsRoot.sh'
+gnome-terminal -- sh -c '/home/user/Downloads/SafeGuard-Installer/SafeGuard-Assets/LaunchAsRoot.sh'
 EOF
 }
 clean(){
