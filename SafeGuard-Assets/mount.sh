@@ -9,6 +9,7 @@ local printWhite=$'\e[0m'
 
 
 storageDevName=$(lsblk -io KNAME,TYPE,SIZE | grep disk | sed 's/G//' | awk '$3 > 900 {print $1}')
+storageUUID=blkid /dev/${storageDevName}1 -s UUID -o value
 if [[-z ${storageUUID} ]]; then
 	echo "Invalid Mount drive..."
 	echo "Please mount drive manually"
@@ -17,15 +18,14 @@ if [[-z ${storageUUID} ]]; then
 fi
 #test echo
 echo "awk output:    ${printCyan}${storageDevName}${printWhite}"
-
+echo "UUID:    ${printCyan}${storageUUID}${printWhite}"
 
 umount /dev/${storageDevName}
 
 echo "/dev/${storageDevName} will be Deleted Permanently!"
-echo "UUID is"
-echo ${printCyan}${storageUUID}${printWhite}
 echo "10 Seconds to change your mind..."
-sleep 10
+sleep 10 #last chance
+
 echo "Starting..."
 sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk /dev/${storageDevName} && succesfulPrint "Partitioning"
   o # clear the in memory partition table
@@ -38,12 +38,9 @@ sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk /dev/${storageDevName} && 
   q # done
 EOF
 mkfs.ext4 /dev/${storageDevName}1 && succesfulPrint "Formatting"
-storageUUID=blkid /dev/${storageDevName}1 -s UUID -o value
-echo "UUID:    ${printCyan}${storageUUID}${printWhite}"
 mkdir /storage
-mount UUID=${storageUUID} -o defaults /storage && succesfulPrint "Mountung"
+mount UUID=${storageUUID} -o defaults /storage && succesfulPrint "Mounting"
 exit 0
-
 
 
 
