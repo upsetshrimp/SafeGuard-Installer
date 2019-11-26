@@ -17,7 +17,7 @@ if [[ -z ${token} ]]; then
     echo
     echo "You must provide a docker registry token!"
     echo "Exiting..."
-    exit 1; 
+    exit 1
 fi
 #dependencies and resources
 dpkg -a --configure
