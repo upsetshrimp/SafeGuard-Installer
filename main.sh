@@ -2,7 +2,7 @@
 # s6NXKghuKb
 firstIteration() {
 if [[ -d "/home/user/" ]]; then
-	cd /home/user/Downloads
+c	d /home/user/Downloads
 else
 	echo "You have set the wrong username for the ubuntu installation, please reinstall with a user named user"
 	exit 1
