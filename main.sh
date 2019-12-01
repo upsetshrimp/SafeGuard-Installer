@@ -1,108 +1,28 @@
 #! /bin/bash
 # s6NXKghuKb
-firstIteration() {
-if [[ -d "/home/user/" ]]; then
-c	d /home/user/Downloads
-else
-	echo "You have set the wrong username for the ubuntu installation, please reinstall with a user named user"
-	exit 1
-fi
-local token="$1"
-local printCyan=$'\e[1;36m'
-local printWhite=$'\e[0m'
-local repoPath=/home/user/Downloads/SafeGuard-Installer/
-echo "Token is:"
-echo -e "${printCyan}${token}${printWhite}"
-if [[ -z ${token} ]]; then 
-    echo
-    echo "You must provide a docker registry token!"
-    echo "Exiting..."
-    exit 1
-fi
-#dependencies and resources
-dpkg -a --configure
-wget https://download.teamviewer.com/download/linux/teamviewer_amd64.deb
-wget https://github.com/ANVSupport/SafeGuard-Installer/releases/download/Appimage/FaceSearch-1.20.0-linux-x86_64.AppImage
-mv FaceSearch-1.20.0-linux-x86_64.AppImage /home/user/Desktop/SafeGuard.AppImage
-chmod +x /home/user/Desktop/SafeGuard.AppImage && chown /home/user/Desktop/SafeGuard.AppImage
-apt install vlc curl vim htop net-tools git expect -y -qq > /dev/null && successfulPrint "Utilities"
-git clone https://github.com/ANVSupport/SafeGuard-Installer > /dev/null && successfulPrint "Repo Cloned"
-chmod +x ${repoPath}*
-apt install ./team* -y -qq > /dev/null && successfulPrint "TeamViewer"
-mv ./SafeGuard-Installer/SafeGuard-Assets/secondIteration.sh /opt/secondIteration.sh
+# This is the main function of the Safeguard Installer..
+# The PC has to have an ubuntu 18.04.1/2 installation with a user named "user"
+# with 2 drives, 1 ssd and one HDD for storage
+# This script will delete the HDD, make sure you don't need ANYTHING
+# Created By Gilad Ben-Nun
 
-# Call storage mounting script
-bash ${repoPath}/SafeGuard-Assets/mount.sh && successfulPrint "Storage Mount" || failedPrint "Storage Mount"
-
-##moxa set up
-moxadir=/home/user/moxa-config/
-mkdir ${moxadir}
-mv /home/user/Downloads/SafeGuard-Installer/SafeGuard-Assets/moxa_e1214.sh ${moxadir}
-mv /home/user/Downloads/SafeGuard-Installer/SafeGuard-Assets/cameraList.json ${moxadir} && successfulPrint "Moxa setup" || failedPrint "Moxa setup"
-chmod +x ${moxadir}* && chown user ${moxadir}*
-
-cat << "EOF"
- _____              _          _  _  _                    _____          __        _____                         _          
-|_   _|            | |        | || |(_)                  / ____|        / _|      / ____|                       | |         
-  | |   _ __   ___ | |_  __ _ | || | _  _ __    __ _    | (___    __ _ | |_  ___ | |  __  _   _   __ _  _ __  __| |         
-  | |  | '_ \ / __|| __|/ _` || || || || '_ \  / _` |    \___ \  / _` ||  _|/ _ \| | |_ || | | | / _` || '__|/ _` |         
- _| |_ | | | |\__ \| |_| (_| || || || || | | || (_| |    ____) || (_| || | |  __/| |__| || |_| || (_| || |  | (_| | _  _  _ 
-|_____||_| |_||___/ \__|\__,_||_||_||_||_| |_| \__, |   |_____/  \__,_||_|  \___| \_____| \__,_| \__,_||_|   \__,_|(_)(_)(_)
-                                                __/ |                                                                       
-                                               |___/                                                                        
-EOF
-bash -s /home/user/Downloads/SafeGuard-Installer/compose-oneliner/compose-oneliner.sh -b 1.20.0 -k ${token}
-ln -s /home/user/docker-compose/1.20.0/docker-compose-local-gpu.yml /home/user/docker-compose/1.20.0/docker-compose.yml && successfulPrint "Create Symbolic Link" || failedPrint "Create Symbolic Link"
-echo "1" > /opt/sg.f ##flag if the script has been run 
-
-##make script auto run after login
-tee -a /home/user/.profile <<'EOF' && successfulPrint "Startup added"
-gnome-terminal -- sh -c '/home/user/Downloads/SafeGuard-Installer/SafeGuard-Assets/launchAsRoot.sh'
-EOF
-}
-clean(){
-cat << "EOF"
-
-  _____  _                      _                  _____              _                   
- / ____|| |                    (_)                / ____|            | |                  
-| |     | |  ___   __ _  _ __   _  _ __    __ _  | (___   _   _  ___ | |_  ___  _ __ ___  
-| |     | | / _ \ / _` || '_ \ | || '_ \  / _` |  \___ \ | | | |/ __|| __|/ _ \| '_ ` _ \ 
-| |____ | ||  __/| (_| || | | || || | | || (_| |  ____) || |_| |\__ \| |_|  __/| | | | | |
- \_____||_| \___| \__,_||_| |_||_||_| |_| \__, | |_____/  \__, ||___/ \__|\___||_| |_| |_|
-                                           __/ |           __/ |                          
-                                          |___/           |___/                           
-EOF
-apt remove --purge *docker* docker-compose nvidia-container-runtime nvidia-container-toolkit nvidia-docker nvidia* > /dev/null && successfulPrint "Purge drivers and docker"
-rm -rfv /home/user/docker-compose/*
-rm -rfv /home/user/Downloads/*
-rm -rfv /opt/sg.f ##clear iteration flag because everything has been cleaned
-rm -rfv /ssd/*
-rm -rfv /storage/*
-successfulPrint "System Clean"
-}
-successfulPrint(){
-local printGreen=$'\e[1;32m'
-local printWhite=$'\e[0m'
-	echo -e "=================================================================="
-	echo -e "                    $1 ....${green}Success${white}                  "
-	echo -e "=================================================================="
-}
-failedPrint(){
-local printRed=$'\e[1;31m'
-local printWhite=$'\e[0m'
-	echo -e "=================================================================="
-	echo -e "                    $1 ....${red}Failed!${white}                  "
-	echo -e "=================================================================="
-}
-##main
-red=$'\e[1;31m'
-white=$'\e[0m'
+HOME_DIR=`eval echo ~$(logname)`
 if [ "$EUID" -ne 0 ]; then
 	echo "Please run this script as root"
 	echo "Exiting..."
 	exit 1
 fi
-if grep -q "1" /opt/sg.f; then
+
+command -v git >/dev/null 2>&1 ||
+{ echo >&2 "Git is not installed. Installing..";
+  apt install -y -qq git && echo "Git Installed"
+}
+git clone https://github.com/ANVSupport/SafeGuard-Installer ${HOME_DIR}  > /dev/null && echo "Repo Cloned"
+source ${HOME_DIR}/SafeGuard-Installer/SafeGuard-Assets/utilities.sh
+
+if [[ ! -f "/opt/sg.f" ]]; then
+	firstIteration "$1"
+elif grep -q "1" /opt/sg.f; then
 	echo "Second Iteration should have been run automatically upon startup"
 	read -p "Do you wish to run it manually anyway? [Y/N]" -n 1 -r $yn1
 	case "$yn1" in
@@ -110,9 +30,6 @@ if grep -q "1" /opt/sg.f; then
 		n|N) echo "Exiting..."; exit 0;;
 		*) echo "Invalid choice, Exiting.."; exit 1;;
 	esac
-
-elif [[ ! -f "/opt/sg.f" ]]; then
-	firstIteration "$1"
 elif $(grep -q "2" /opt/sg.f) ; then
 	echo "Script has been run fully already"
 	read -p "Do you wish to clean this pc? [Y/N] ${red}(Warning! this will delete EVERYTHING)${white}" -n 1 -r $yn
