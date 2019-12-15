@@ -28,7 +28,7 @@ echo "10 Seconds to change your mind..."
 sleep 10 #last chance
 
 echo "Starting..."
-sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk "/dev/${storageDevName}" && succesfulPrint "Partitioning"
+sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk "/dev/${storageDevName}"
   o # clear the in memory partition table
   n # new partition
   p # primary partition
@@ -40,5 +40,9 @@ sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk "/dev/${storageDevName}" &
 EOF
 mkfs.ext4 "/dev/${storageDevName}1"
 mkdir /storage
+tee -a /etc/fstab << EOF
+"/dev/disk/by-uuid/"${storageUUID}" /storage ext4 defaults 0$"
+EOF
+mount -a
 mount UUID="${storageUUID}" -o defaults /storage
 exit 0

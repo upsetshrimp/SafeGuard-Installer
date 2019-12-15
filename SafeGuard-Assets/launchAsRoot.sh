@@ -9,5 +9,5 @@ spawn sudo -i
 expect "*:"
 send "user1!\n"
 expect "*#"
-send "bash /opt/SecondIteration.sh\r"
+send "bash /opt/secondIteration.sh\r"
 interact

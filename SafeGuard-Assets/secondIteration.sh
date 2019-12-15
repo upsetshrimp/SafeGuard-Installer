@@ -3,11 +3,12 @@
 #This is the second Iteration of the SafeGuard Installation Script.
 # Meant to be run automatically on startup after the first part has rebooted.
 # Written By Gilad Ben-Nun
+
+export printCyan=$'\e[1;36m'
+export printWhite=$'\e[0m'
+export printRed=$'\e[1;31m'
+export printGreen=$'\e[1;32m'
 SecondIteration(){
-	local printCyan=$'\e[1;36m'
-	local printWhite=$'\e[0m'
-	local printRed=$'\e[1;31m'
-	local printGreen=$'\e[1;32m'
 	dockerfile=/home/user/docker-compose/1.20.0/docker-compose.yml
 	echo "Dockerfile set as:"
 	echo ${dockerfile}
@@ -29,12 +30,13 @@ EOF
 	sed -i "${line}i \      - \/home\/user\/moxa-config:\/home\/user\/moxa-config" ${dockerfile}
 	sed -i "s|nginx-\${node_name:-localnode}.tls.ai|nginx-$host.tls.ai|g" ${dockerfile}
 	sed -i "s|api.tls.ai|api-$host.tls.ai|g" ${dockerfile} && SuccesfulPrint "Modify docker files" || FailedPrint "Modify docker files"
-	cd /home/user/docker-compose/1.20.0/ 
+	cd /home/user/docker-compose/1.20.0/ || exit 1
 	docker-compose -f docker-compose.yml up -d
 	sleep 5
-	footprint=docker exec -it $(docker ps | grep backend | awk '{print $1}') license-ver -o
+	footprint=$(docker exec -it $(docker ps | grep backend | awk '{print $1}') license-ver -o)
+	echo "Footprint: ""${printCyan}""${footprint}""${printWhite}"
 	echo "2" > /opt/sg.f ##marks second iteration has happened
-	sed '/gnome-terminal/d' /home/user/.profile && SuccesfulPrint "Remove startup line" ## to test
+	sed '/gnome-terminal/d' /etc/gdm3/PostLogin/Default && SuccesfulPrint "Remove startup line" ## to test
 	cat << "EOF"
 	 _____   ____  _   _ ______ 
 	|  __ \ / __ \| \ | |  ____|
@@ -47,18 +49,14 @@ EOF
 }
 
 SuccesfulPrint(){
-	local printGreen=$'\e[1;32m'
-	local printWhite=$'\e[0m'
 	echo -e "=================================================================="
-	echo -e "                    $1 ....${green}Success${white}                  "
+	echo -e "                    $1 ....${printGreen}Success${printWhite}                  "
 	echo -e "=================================================================="
 }
 
 FailedPrint(){
-	local printRed=$'\e[1;31m'
-	local printWhite=$'\e[0m'
 	echo -e "=================================================================="
-	echo -e "                    $1 ....${red}Failed!${white}                  "
+	echo -e "                    $1 ....${printRed}Failed!${printWhite}                  "
 	echo -e "=================================================================="
 }
 if [ "$EUID" -ne 0 ]; then
