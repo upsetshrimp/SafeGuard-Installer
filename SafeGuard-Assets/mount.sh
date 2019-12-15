@@ -21,6 +21,7 @@ echo "awk output:    ${printCyan}${storageDevName}${printWhite}"
 echo "UUID:    ${printCyan}${storageUUID}${printWhite}"
 
 umount "/dev/${storageDevName}"
+wipefs /dev/"${storageDevName}"
 
 echo "/dev/${storageDevName} will be Deleted Permanently!"
 echo "10 Seconds to change your mind..."
@@ -37,17 +38,7 @@ sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk "/dev/${storageDevName}" &
   w # write the partition table
   q # done
 EOF
-mkfs.ext4 "/dev/${storageDevName}1" && succesfulPrint "Formatting"
+mkfs.ext4 "/dev/${storageDevName}1"
 mkdir /storage
-mount UUID="${storageUUID}" -o defaults /storage && succesfulPrint "Mounting"
+mount UUID="${storageUUID}" -o defaults /storage
 exit 0
-
-
-
-succesfulPrint(){
-local printGreen=$'\e[1;32m'
-local printWhite=$'\e[0m'
-	echo -e "=================================================================="
-	echo -e "                    $1 ....${printGreen}Success${printWhite}                  "
-	echo -e "=================================================================="
-}
