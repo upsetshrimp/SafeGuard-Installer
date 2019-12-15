@@ -9,7 +9,7 @@ printWhite=$'\e[0m'
 
 
 storageDevName=$(lsblk -bio SIZE,KNAME,TYPE | grep disk | sort -nr | head -1 | awk '{ print $2 }')
-storageUUID=$(blkid "/dev/${storageDevName}1" -s UUID -o value)
+storageUUID=$(blkid "/dev/${storageDevName}" -s UUID -o value)
 if [[ -z "$storageUUID" ]]; then
 	echo "Invalid Mount drive..."
 	echo "Please mount drive manually"
