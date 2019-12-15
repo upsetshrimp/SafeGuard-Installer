@@ -9,13 +9,12 @@ printWhite=$'\e[0m'
 
 
 storageDevName=$(lsblk -bio SIZE,KNAME,TYPE | grep disk | sort -nr | head -1 | awk '{ print $2 }')
-storageUUID=$(blkid "/dev/${storageDevName}" -s UUID -o value)
-if [[ -z "$storageUUID" ]]; then
-	echo "Invalid Mount drive..."
-	echo "Please mount drive manually"
-	echo "Exiting..."
-	exit 1
-fi
+#if [[ -z "$storageDevName" ]]; then
+#	echo "Invalid Mount drive..."
+#	echo "Please mount drive manually"
+#	echo "Exiting..."
+#	exit 1
+#fi
 #test echo
 echo "awk output:    ${printCyan}${storageDevName}${printWhite}"
 echo "UUID:    ${printCyan}${storageUUID}${printWhite}"
@@ -39,10 +38,10 @@ sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk "/dev/${storageDevName}"
   q # done
 EOF
 mkfs.ext4 "/dev/${storageDevName}1"
+storageUUID=$(blkid "/dev/${storageDevName}1" -s UUID -o value)
 mkdir /storage
 tee -a /etc/fstab << EOF
 "/dev/disk/by-uuid/"${storageUUID}" /storage ext4 defaults 0$"
 EOF
 mount -a
-mount UUID="${storageUUID}" -o defaults /storage
 exit 0
