@@ -12,9 +12,10 @@ SecondIteration(){
 	dockerfile=/home/user/docker-compose/1.20.0/docker-compose.yml
 	echo "Dockerfile set as:"
 	echo ${dockerfile}
-	local isInFile=$(cat /home/user/docker-compose/1.20.0/env/broadcaster.env | grep -c "/moxa_e1214.sh")
+	local isInFile
+	isInFile=$( < /home/user/docker-compose/1.20.0/env/broadcaster.env grep -c "/moxa_e1214.sh")
 	##check if script has been run before, to not add duplicates
-	if [ $isInFile -eq 0 ]; then
+	if [ "$isInFile" -eq 0 ]; then
 		tee -a /home/user/docker-compose/1.20.0/env/broadcaster.env <<'EOF'
 		## Modbus plugin integration
 		BCAST_MODBUS_IS_ENABLED=true
@@ -29,11 +30,11 @@ EOF
 	host=$(hostname)
 	sed -i "${line}i \      - \/home\/user\/moxa-config:\/home\/user\/moxa-config" ${dockerfile}
 	sed -i "s|nginx-\${node_name:-localnode}.tls.ai|nginx-$host.tls.ai|g" ${dockerfile}
-	sed -i "s|api.tls.ai|api-$host.tls.ai|g" ${dockerfile} && SuccesfulPrint "Modify docker files" || FailedPrint "Modify docker files"
+	sed -i "s|api.tls.ai|api-$host.tls.ai|g" ${dockerfile} && SuccesfulPrint "Modify docker files"
 	cd /home/user/docker-compose/1.20.0/ || exit 1
-	docker-compose -f docker-compose.yml up -d
-	sleep 5
-	footprint=$(docker exec -it $(docker ps | grep backend | awk '{print $1}') license-ver -o)
+	docker-compose -f docker-compose-local-gpu.yml up -d
+	sleep 10
+	footprint=$(docker exec -it "$(docker ps | grep backend | awk '{print $1}')" license-ver -o)
 	echo "Footprint: ""${printCyan}""${footprint}""${printWhite}"
 	echo "2" > /opt/sg.f ##marks second iteration has happened
 	sed '/gnome-terminal/d' /etc/gdm3/PostLogin/Default && SuccesfulPrint "Remove startup line" ## to test
