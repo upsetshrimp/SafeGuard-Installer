@@ -17,7 +17,7 @@ HOME_DIR=$(eval echo ~"$(logname)")
 
 firstIteration() {
 	local token="$1"
-	local repoPath=${HOME_DIR}/SafeGuard-Installer/
+	local repoPath="${HOME_DIR}"/SafeGuard-Installer
 
 	echo "Token is:"
 	echo -e "${printCyan}${token}${printWhite}"
@@ -97,12 +97,12 @@ EOF
 
 successfulPrint(){
 	echo -e "=================================================================="
-	echo -e "                    $1 ....${green}Success${white}                  "
+	echo -e "                    $1 ....${printGreen}Success${printWhite}                  "
 	echo -e "=================================================================="
 }
 
 failedPrint(){
 	echo -e "=================================================================="
-	echo -e "                    $1 ....${red}Failed!${white}                  "
+	echo -e "                    $1 ....${printRed}Failed!${printWhite}                  "
 	echo -e "=================================================================="
 }
