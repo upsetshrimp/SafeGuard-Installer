@@ -41,7 +41,7 @@ mkfs.ext4 "/dev/${storageDevName}1"
 storageUUID=$(blkid "/dev/${storageDevName}1" -s UUID -o value)
 mkdir /storage
 tee -a /etc/fstab << EOF
-"/dev/disk/by-uuid/"${storageUUID}" /storage ext4 defaults 0$"
+UUID=${storageUUID} /storage ext4 defaults 1
 EOF
 mount -a
 exit 0
