@@ -32,8 +32,8 @@ firstIteration() {
 	#dependencies and resources
 	rm -rf /var/lib/dpkg/lock /var/lib/dpkg/lock-frontend
 	dpkg -a --configure # fixes issues with dpkg preventing the script from running...
-	wget -O "${repoPath}/Teamviewer.deb" "https://download.teamviewer.com/download/linux/teamviewer_amd64.deb"
-	wget -O "${HOME_DIR}/Desktop/SafeGuard.AppImage" https://github.com/ANVSupport/SafeGuard-Installer/releases/download/Appimage/FaceSearch-1.20.0-linux-x86_64.AppImage
+	wget -Oq --show-progress "${repoPath}/Teamviewer.deb" "https://download.teamviewer.com/download/linux/teamviewer_amd64.deb"
+	wget -Oq --show-progress "${HOME_DIR}/Desktop/SafeGuard.AppImage" https://github.com/ANVSupport/SafeGuard-Installer/releases/download/Appimage/FaceSearch-1.20.0-linux-x86_64.AppImage
 	chmod +x "${HOME_DIR}/Desktop/SafeGuard.AppImage" && chown "$(logname)" "${HOME_DIR}/Desktop/SafeGuard.AppImage"
 	apt-get install vlc curl vim htop net-tools expect parted -y -qq > /dev/null && successfulPrint "Utilities"
 	chmod +x "${repoPath}"*
@@ -71,7 +71,11 @@ EOF
 	echo "1" > /opt/sg.f ##flag if the script has been run 
 
 	##make script auto run after login
-	tee -a "${HOME_DIR}/.profile" <<EOF && successfulPrint "Startup added" # EOF without quotations or backslash evaluates variables
+
+	if [[ ! -f /etc/gdm3/PostLogin/Default ]]; then
+		touch /etc/gdm3/PostLogin/Default
+	fi
+	tee -a /etc/gdm3/PostLogin/Default <<EOF && successfulPrint "Startup added" # EOF without quotations or backslash evaluates variables
 	xhost +
 	gnome-terminal -- sh -c '${repoPath}/SafeGuard-Assets/launchAsRoot.sh'
 EOF
