@@ -27,7 +27,7 @@ firstIteration() {
 	fi
 	#dependencies and resources
 	dpkg -a --configure # fixes issues with dpkg preventing the script from running...
-	wget -O "${repoPath}/Teamviewer.deb https://download.teamviewer.com/download/linux/teamviewer_amd64.deb"
+	wget -O "${repoPath}/Teamviewer.deb" "https://download.teamviewer.com/download/linux/teamviewer_amd64.deb"
 	wget -O "${HOME_DIR}/Desktop/SafeGuard.AppImage" https://github.com/ANVSupport/SafeGuard-Installer/releases/download/Appimage/FaceSearch-1.20.0-linux-x86_64.AppImage
 	chmod +x "${HOME_DIR}/Desktop/SafeGuard.AppImage" && chown "$(logname)" "${HOME_DIR}/Desktop/SafeGuard.AppImage"
 	apt install vlc curl vim htop net-tools expect parted -y -qq > /dev/null && successfulPrint "Utilities"
