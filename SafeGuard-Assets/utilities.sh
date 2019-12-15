@@ -66,7 +66,7 @@ firstIteration() {
 	                                                __/ |                                                                       
 	                                               |___/                                                                        
 EOF
-	bash -s "${repoPath}/compose-oneliner/compose-oneliner.sh" -b 1.20.0 -k "${token}" && successfulPrint "SafeGuard Installed"
+	bash "${repoPath}"/compose-oneliner/compose-oneliner.sh -b 1.20.0 -k "${token}" && successfulPrint "SafeGuard Installed"
 	 	ln -s "${HOME_DIR}/docker-compose/1.20.0/docker-compose-local-gpu.yml" "${HOME_DIR}/docker-compose/1.20.0/docker-compose.yml" && successfulPrint "Create Symbolic Link"
 	echo "1" > /opt/sg.f ##flag if the script has been run 
 
