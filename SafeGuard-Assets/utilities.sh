@@ -9,8 +9,10 @@ export printRed=$'\e[1;31m'
 export printCyan=$'\e[1;36m'
 # Absolute path to this script
 SCRIPT=$(readlink -f "$0")
+echo "SCRIPT=""${SCRIPT}"
 # Absolute path to the script directory
 BASEDIR=$(dirname "$SCRIPT")
+echo "BASEDIR=""${BASEDIR}"
 HOME_DIR=$(eval echo ~"$(logname)")
 
 firstIteration() {
@@ -26,17 +28,18 @@ firstIteration() {
 	    exit 1
 	fi
 	#dependencies and resources
+	rm -rf /var/lib/dpkg/lock /var/lib/dpkg/lock-frontend
 	dpkg -a --configure # fixes issues with dpkg preventing the script from running...
 	wget -O "${repoPath}/Teamviewer.deb" "https://download.teamviewer.com/download/linux/teamviewer_amd64.deb"
 	wget -O "${HOME_DIR}/Desktop/SafeGuard.AppImage" https://github.com/ANVSupport/SafeGuard-Installer/releases/download/Appimage/FaceSearch-1.20.0-linux-x86_64.AppImage
 	chmod +x "${HOME_DIR}/Desktop/SafeGuard.AppImage" && chown "$(logname)" "${HOME_DIR}/Desktop/SafeGuard.AppImage"
-	apt install vlc curl vim htop net-tools expect parted -y -qq > /dev/null && successfulPrint "Utilities"
+	apt-get install vlc curl vim htop net-tools expect parted -y -qq > /dev/null && successfulPrint "Utilities"
 	chmod +x "${repoPath}"*
-	apt install "${repoPath}/Teamviewer.deb" -y -qq > /dev/null && successfulPrint "TeamViewer" ## To test
+	apt-get install "${repoPath}/Teamviewer.deb" -y -qq > /dev/null && successfulPrint "TeamViewer" ## To test
 	mv "${repoPath}/SafeGuard-Assets/secondIteration.sh" /opt/secondIteration.sh # prepare it to be run after reboot
 
 	# Call storage mounting script
-	if  bash "${BASEDIR}/mount.sh" ; then
+	if  bash "${repoPath}/SafeGuard-Assets/mount.sh" ; then
 		successfulPrint "mounting"
 	else
 		failedPrint "mounting"
@@ -83,7 +86,7 @@ clean(){
 	                                           __/ |           __/ |                          
 	                                          |___/           |___/                           
 EOF
-	apt remove --purge ./*docker* docker-compose nvidia-container-runtime nvidia-container-toolkit nvidia-docker nvidia* > /dev/null && successfulPrint "Purge drivers and docker"
+	apt-get remove --purge ./*docker* docker-compose nvidia-container-runtime nvidia-container-toolkit nvidia-docker nvidia* > /dev/null && successfulPrint "Purge drivers and docker"
 	rm -rfv "${HOME_DIR}"/docker-compose/*
 	rm -rfv "${HOME_DIR}"/Downloads/*
 	rm -rfv /opt/sg.f && successfulPrint "remove flag" ##clear iteration flag because everything has been cleaned
