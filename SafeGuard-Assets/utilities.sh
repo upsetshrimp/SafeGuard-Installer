@@ -36,7 +36,8 @@ firstIteration() {
 	wget -q --show-progress -O "${HOME_DIR}/Desktop/SafeGuard.AppImage" https://github.com/ANVSupport/SafeGuard-Installer/releases/download/Appimage/FaceSearch-1.20.0-linux-x86_64.AppImage
 	chmod +x "${HOME_DIR}/Desktop/SafeGuard.AppImage" && chown "$(logname)" "${HOME_DIR}/Desktop/SafeGuard.AppImage"
 	apt-get install vlc curl vim htop net-tools expect parted -y -qq > /dev/null && successfulPrint "Utilities"
-	chmod +x "${repoPath}"*
+	chmod -R +x "${repoPath}"*
+	cp "${repoPath}"/SafeGuard-Assets/SGLogo.jpg "${HOME_DIR}"/Desktop/SGLogo.jpg
 	apt-get install "${repoPath}/Teamviewer.deb" -y -qq > /dev/null && successfulPrint "TeamViewer" ## To test
 	mv "${repoPath}/SafeGuard-Assets/secondIteration.sh" /opt/secondIteration.sh # prepare it to be run after reboot
 
@@ -71,11 +72,14 @@ EOF
 	echo "1" > /opt/sg.f ##flag if the script has been run 
 
 	##make script auto run after login
-	echo "#! /bin/sh" > /etc/gdm3/PostLogin/Default
-	tee -a /etc/gdm3/PostLogin/Default <<EOF && successfulPrint "Startup added" # EOF without quotations or backslash evaluates variables
-	xhost +
-	gnome-terminal -- sh -c '${repoPath}/SafeGuard-Assets/launchAsRoot.sh'
+	local startupFile
+	startupFile=etc/gdm3/PostLogin/Default
+	echo "#! /bin/sh" > ${startupFile}
+	tee -a ${startupFile} <<EOF && successfulPrint "Startup added" # EOF without quotations or backslash evaluates variables
+gnome-terminal -- sh -c '${repoPath}/SafeGuard-Assets/launchAsRoot.sh'
 EOF
+chmod +x ${startupFile}
+echo "xhost +" >> "${HOME_DIR}"/.profile
 }
 clean(){
 	cat << "EOF"
