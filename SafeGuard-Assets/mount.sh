@@ -8,7 +8,7 @@ printCyan=$'\e[1;36m'
 printWhite=$'\e[0m'
 
 
-storageDevName=$(lsblk -io KNAME,TYPE,SIZE | grep disk | sed 's/G//' | awk '$3 > 900 {print $1}')
+storageDevName=$(lsblk -bio SIZE,KNAME,TYPE | grep disk | sort -nr | head -1 | awk '{ print $1 }')
 storageUUID=$(blkid "/dev/${storageDevName}1" -s UUID -o value)
 if [[ -z "$storageUUID" ]]; then
 	echo "Invalid Mount drive..."
