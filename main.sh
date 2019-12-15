@@ -3,10 +3,12 @@
 # This is the main function of the Safeguard Installer..
 # The PC has to have an ubuntu 18.04.1/2 installation with a user named "user"
 # with 2 drives, 1 ssd and one HDD for storage
+# Password has to be user1! or else second iteration will not be able to log itself in
+# In that case, you can run second iteration manually from the repo folder...
 # This script will delete the HDD, make sure you don't need ANYTHING
 # Created By Gilad Ben-Nun
 
-HOME_DIR=`eval echo ~$(logname)`
+HOME_DIR=$(eval echo ~"$(logname)")
 if [ "$EUID" -ne 0 ]; then
 	echo "Please run this script as root"
 	echo "Exiting..."
@@ -17,7 +19,7 @@ command -v git >/dev/null 2>&1 ||
 { echo >&2 "Git is not installed. Installing..";
   apt install -y -qq git && echo "Git Installed"
 }
-git clone https://github.com/ANVSupport/SafeGuard-Installer ${HOME_DIR}  > /dev/null && echo "Repo Cloned"
+git clone https://github.com/ANVSupport/SafeGuard-Installer "${HOME_DIR}"  > /dev/null && echo "Repo Cloned"
 source ${HOME_DIR}/SafeGuard-Installer/SafeGuard-Assets/utilities.sh
 
 if [[ ! -f "/opt/sg.f" ]]; then
