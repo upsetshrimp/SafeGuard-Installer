@@ -6,8 +6,9 @@
 # Very Important TODO, add if statement, if the password is incorrect, it prompts the user to enter it and then runs the second iteration..
 
 spawn sudo -i
-expect "*:"
+expect ":"
 send "user1!\n"
 expect "*#"
 send "bash /opt/secondIteration.sh\r"
+expect eof
 interact
