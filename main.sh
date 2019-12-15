@@ -19,7 +19,8 @@ command -v git >/dev/null 2>&1 ||
 { echo >&2 "Git is not installed. Installing..";
   apt install -y -qq git && echo "Git Installed"
 }
-git clone https://github.com/ANVSupport/SafeGuard-Installer "${HOME_DIR}"  > /dev/null && echo "Repo Cloned"
+mkdir -p "${HOME_DIR}/SafeGuard-Installer/"
+git clone https://github.com/ANVSupport/SafeGuard-Installer "${HOME_DIR}/SafeGuard-Installer/"  > /dev/null && echo "Repo Cloned"
 source ${HOME_DIR}/SafeGuard-Installer/SafeGuard-Assets/utilities.sh
 
 if [[ ! -f "/opt/sg.f" ]]; then
