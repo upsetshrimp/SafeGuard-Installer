@@ -19,6 +19,7 @@ echo "HOME_DIR=""${HOME_DIR}"
 firstIteration() {
 	local token="$1"
 	local repoPath="${HOME_DIR}"/SafeGuard-Installer
+	echo "Repo Path=""${printCyan}${repoPath}${printWhite}"
 
 	echo "Token is:"
 	echo -e "${printCyan}${token}${printWhite}"
@@ -49,7 +50,7 @@ firstIteration() {
 	fi
 
 	##moxa set up
-	moxadir=${HOME_DIR}/moxa-config/
+	moxadir=${HOME_DIR}/moxa-config
 	mkdir "${moxadir}"
 	mv "${repoPath}/SafeGuard-Assets/moxa_e1214.sh" "${moxadir}/moxa_e1214.sh"
 	mv "${repoPath}/SafeGuard-Assets/cameraList.json ${moxadir}/cameraList.json" && successfulPrint "Moxa setup"
@@ -65,9 +66,8 @@ firstIteration() {
 	                                                __/ |                                                                       
 	                                               |___/                                                                        
 EOF
-	bash -s "${repoPath}/SafeGuard-Assets/Downloads/SafeGuard-Installer/compose-oneliner/compose-oneliner.sh" -b 1.20.0 -k "${token}"\
-	&& successfulPrint "SafeGuard Installed"
-	ln -s "${HOME_DIR}/docker-compose/1.20.0/docker-compose-local-gpu.yml" "${HOME_DIR}/docker-compose/1.20.0/docker-compose.yml" && successfulPrint "Create Symbolic Link"
+	bash -s "${repoPath}/compose-oneliner/compose-oneliner.sh" -b 1.20.0 -k "${token}" && successfulPrint "SafeGuard Installed"
+	 	ln -s "${HOME_DIR}/docker-compose/1.20.0/docker-compose-local-gpu.yml" "${HOME_DIR}/docker-compose/1.20.0/docker-compose.yml" && successfulPrint "Create Symbolic Link"
 	echo "1" > /opt/sg.f ##flag if the script has been run 
 
 	##make script auto run after login
