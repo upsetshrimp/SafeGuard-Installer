@@ -15,11 +15,7 @@ storageDevName=$(lsblk -bio SIZE,KNAME,TYPE | grep disk | sort -nr | head -1 | a
 #	echo "Exiting..."
 #	exit 1
 #fi
-#test echo
-echo "awk output:    ${printCyan}${storageDevName}${printWhite}"
-echo "UUID:    ${printCyan}${storageUUID}${printWhite}"
-
-umount "/dev/${storageDevName}"
+umount /dev/"${storageDevName}"
 wipefs /dev/"${storageDevName}"
 
 echo "/dev/${storageDevName} will be Deleted Permanently!"
@@ -27,7 +23,7 @@ echo "10 Seconds to change your mind..."
 sleep 10 #last chance
 
 echo "Starting..."
-sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk "/dev/${storageDevName}"
+sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk /dev/"${storageDevName}" # the sed sanitizes the comments in the input it sends to fdisk
   o # clear the in memory partition table
   n # new partition
   p # primary partition
@@ -39,9 +35,13 @@ sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk "/dev/${storageDevName}"
 EOF
 mkfs.ext4 "/dev/${storageDevName}1"
 storageUUID=$(blkid "/dev/${storageDevName}1" -s UUID -o value)
+echo "UUID:    ${printCyan}${storageUUID}${printWhite}"
 mkdir /storage
 tee -a /etc/fstab << EOF
 UUID=${storageUUID} /storage ext4 defaults 1
 EOF
-mount -a
-exit 0
+if mount -a; then
+  exit 0
+else
+  exit 1
+fi

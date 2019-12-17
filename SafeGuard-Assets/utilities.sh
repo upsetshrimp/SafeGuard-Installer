@@ -9,25 +9,30 @@ export printRed=$'\e[1;31m'
 export printCyan=$'\e[1;36m'
 # Absolute path to this script
 SCRIPT=$(readlink -f "$0")
-echo "SCRIPT=""${SCRIPT}"
+echo "SCRIPT  DIR:"
+echo "${SCRIPT}"
 # Absolute path to the script directory
 BASEDIR=$(dirname "$SCRIPT")
-echo "BASEDIR=""${BASEDIR}"
+echo "BASEDIR:"
+echo "${BASEDIR}"
 HOME_DIR=$(eval echo ~"$(logname)")
-echo "HOME_DIR=""${HOME_DIR}"
+echo "HOME_DIR: "
+echo "${HOME_DIR}"
+
 
 firstIteration() {
 	local token="$1"
 	local repoPath="${HOME_DIR}"/SafeGuard-Installer
-	echo "Repo Path=""${printCyan}${repoPath}${printWhite}"
-
+	echo "Repo Path:"
+	echo "${printCyan}${repoPath}${printWhite}"
 	echo "Token is:"
 	echo -e "${printCyan}${token}${printWhite}"
+
 	if [[ -z ${token} ]]; then 
 	    echo
 	    echo "You must provide a docker registry token!"
-	    echo "Exiting..."
-	    exit 1
+	    echo "Exiting...
+"	    exit 1
 	fi
 	#dependencies and resources
 	rm -rf /var/lib/dpkg/lock /var/lib/dpkg/lock-frontend
@@ -35,18 +40,23 @@ firstIteration() {
 	wget -q --show-progress -O "${repoPath}/Teamviewer.deb" "https://download.teamviewer.com/download/linux/teamviewer_amd64.deb"
 	wget -q --show-progress -O "${HOME_DIR}/Desktop/SafeGuard.AppImage" https://github.com/ANVSupport/SafeGuard-Installer/releases/download/Appimage/FaceSearch-1.20.0-linux-x86_64.AppImage
 	chmod +x "${HOME_DIR}/Desktop/SafeGuard.AppImage" && chown "$(logname)" "${HOME_DIR}/Desktop/SafeGuard.AppImage"
-	apt-get install vlc curl vim htop net-tools expect parted -y -qq > /dev/null && successfulPrint "Utilities"
+	echo "==========================================================="
+	echo "                   ${printCyan}Installing Utilities...${printWhite}                "
+	echo "==========================================================="
+	apt-get install vlc curl vim htop net-tools expect parted -yqq --show-progress && successfulPrint "Utilities"
 	chmod -R +x "${repoPath}"*
 	cp "${repoPath}"/SafeGuard-Assets/SGLogo.jpg "${HOME_DIR}"/Desktop/SGLogo.jpg
-	apt-get install "${repoPath}/Teamviewer.deb" -y -qq > /dev/null && successfulPrint "TeamViewer" ## To test
+	apt-get install "${repoPath}/Teamviewer.deb" -y -qq && successfulPrint "TeamViewer" ## To test
 	mv "${repoPath}/SafeGuard-Assets/secondIteration.sh" /opt/secondIteration.sh # prepare it to be run after reboot
 
 	# Call storage mounting script
 	if  bash "${repoPath}/SafeGuard-Assets/mount.sh" ; then
 		successfulPrint "mounting"
 	else
+		Error=$?
 		failedPrint "mounting"
 		echo "Please mount manually and run this script again"
+		echo "Error: ""${Error}"
 		exit 1
 	fi
 
@@ -79,6 +89,8 @@ EOF
 gnome-terminal -- sh -c '${repoPath}/SafeGuard-Assets/launchAsRoot.sh'
 EOF
 chmod +x ${startupFile}
+ln -s "${repoPath}"/SafeGuard-Assets/launchAsRoot.sh "${HOME_DIR}"/Desktop/RunThis.sh # right order? TO TEST
+chmod +x "${HOME_DIR}"/Desktop/RunThis.sh
 echo "xhost +" >> "${HOME_DIR}"/.profile
 }
 clean(){

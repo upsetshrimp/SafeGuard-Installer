@@ -8,6 +8,8 @@ export printCyan=$'\e[1;36m'
 export printWhite=$'\e[0m'
 export printRed=$'\e[1;31m'
 export printGreen=$'\e[1;32m'
+export HOME_DIR
+HOME_DIR=$(eval echo ~"$(logname)")
 SecondIteration(){
 	dockerfile=/home/user/docker-compose/1.20.0/docker-compose.yml
 	echo "Dockerfile set as:"
@@ -32,12 +34,21 @@ EOF
 	sed -i "s|nginx-\${node_name:-localnode}.tls.ai|nginx-$host.tls.ai|g" ${dockerfile}
 	sed -i "s|api.tls.ai|api-$host.tls.ai|g" ${dockerfile} && SuccesfulPrint "Modify docker files"
 	cd /home/user/docker-compose/1.20.0/ || exit 1
-	docker-compose -f docker-compose-local-gpu.yml up -d
+	if docker-compose -f docker-compose-local-gpu.yml up -d ; then
+		SuccesfulPrint "Image pull"
+	else
+		echo FailedPrint "docker-compose image pull"
+		echo "Images failed to pull, Perhaps the token timed out?"
+		echo "${printRed}""Generate a new token and login manually, then run RunThis.sh from the desktop""${printWhite}"
+		exit 1
+	fi
+
 	sleep 10
 	footprint=$(docker exec -it "$(docker ps | grep backend | awk '{print $1}')" license-ver -o)
 	echo "Footprint: ""${printCyan}""${footprint}""${printWhite}"
 	echo "2" > /opt/sg.f ##marks second iteration has happened
 	sed '/gnome-terminal/d' /etc/gdm3/PostLogin/Default && SuccesfulPrint "Remove startup line" ## to test
+	rm "${HOME_DIR}"/Desktop/RunThis.sh
 	cat << "EOF"
 	 _____   ____  _   _ ______ 
 	|  __ \ / __ \| \ | |  ____|
@@ -47,6 +58,7 @@ EOF
 	|_____/ \____/|_| \_|______|
 
 EOF
+exit 0
 }
 
 SuccesfulPrint(){
@@ -64,13 +76,14 @@ if [ "$EUID" -ne 0 ]; then
 	echo "Could not obtain root access.."
 	echo "Is your password set correctly?"
 	echo "Please change your password and run the script manually"
+	echo "${printCyan}""${HOME_DIR}""/SafeGuard-Installer/SafeGuard-Assets/SecondIteration.sh""${printWhite}"
 	echo "Exiting..."
 	exit 1
 fi
 if [[ -f "/home/user/docker-compose/1.20.0/docker-compose.yml" ]]; then
-		SecondIteration
+		SecondIteration && exit 0
 else
 	echo "App not installed, please Install it and try again"
 	echo "Exiting..."
-	exit 1;
+	exit 1
 fi
